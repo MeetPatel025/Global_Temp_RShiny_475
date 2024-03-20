@@ -8,5 +8,15 @@
 * The third tab shows the relationship between Global Temp and Tesla's Google trends. 
 
 #### Concepts used:
-Timeseries concepts: seasonality, autocorrelation, cross-correlation, and classical decomposition.
+Timeseries concepts: 
+* seasonality
+* trend
+* autocorrelation
+* cross-correlation
+* classical decomposition
 
+#### Shiny Widgets used along with HTML and CSS styling:
+* Navbar
+* Radio buttons
+
+  
