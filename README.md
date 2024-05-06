@@ -1,6 +1,6 @@
 # Global Temperature App
 
-#### App link- https://meetpatel.shinyapps.io/Global_Temp_MidtermApp_MeetPatel/
+#### App link-  https://meetpatel.shinyapps.io/Global_Temperature/
 
 #### General information about the app:
 * The first tab shows the time-series plot of the Global Temp.
