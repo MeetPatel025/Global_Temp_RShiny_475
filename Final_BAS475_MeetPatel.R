@@ -292,6 +292,7 @@ ui <- navbarPage(
                         selected = "Seasonality", 
                         inline=TRUE),
            plotOutput("Plot_3"),
+           fluidRow(column(width = 12, HTML("<br>"))), # Add a gap
            mainPanel(uiOutput("Plot_3_interpretation"))
   ),
   
@@ -310,7 +311,12 @@ ui <- navbarPage(
                         selected = "arima", 
                         inline=TRUE),
            plotOutput("Forecast_Plots"),
-           mainPanel(uiOutput("Forecast_interpretations"))
+           fluidRow(column(width = 12, HTML("<br>"))), # Add a gap
+           mainPanel(uiOutput("Forecast_interpretations")), 
+           fluidRow(column(width = 12, HTML("<br>"))), # Add a gap
+           fluidRow(
+             column(8, plotOutput("Residuals")), # Adjust width here
+           )
            
   )
 )
@@ -387,39 +393,37 @@ server <- function(input, output, session) {
   })
   
   
-  # output$Forecast_Plots <- renderPlot({
-  #   if(input$Choose_Plot == "arima") {
-  #     ggplot() +
-  #     geom_line(data = as.data.frame(final_arima), aes(x = Date, y = Mean), color = "blue") +
-  #     geom_line(data = as.data.frame(gistemp), aes(x = Date, y = Mean), color = "black") +
-  #     labs(title = "Forecast GISTEMP Data using ARIMA",
-  #          y = "Temperature") +
-  #     theme_minimal()
-  #     
-  #   } else if(input$Choose_Plot == "ets") {
-  #     ggplot() +
-  #       geom_line(data = final_ets, aes(x = Date, y = Mean), color = "blue") +
-  #       geom_line(data = gistemp, aes(x = Date, y = Mean), color = "black") +
-  #       labs(title = "Forecast GISTEMP Data using ETS",
-  #            y = "Temperature") +
-  #       theme_minimal()
-  #   } else if(input$Choose_Plot == "drift_and_snaive") {
-  #     ggplot() +
-  #       geom_line(data = final_drift_snaive, aes(x = Date, y = Mean), color = "blue") +
-  #       geom_line(data = gistemp, aes(x = Date, y = Mean), color = "black") +
-  #       labs(title = "Forecast GISTEMP Data using Drift with Snaive",
-  #            y = "Temperature") +
-  #       theme_minimal()
-  #   }
-  #     else if(input$Choose_Plot == "tslm") {
-  #       ggplot() +
-  #         geom_line(data = final_tslm, aes(x = Date, y = Mean), color = "blue") +
-  #         geom_line(data = gistemp, aes(x = Date, y = Mean), color = "black") +
-  #         labs(title = "Forecast GISTEMP Data using TSLM",
-  #              y = "Temperature") +
-  #         theme_minimal()
-  #     }
-  # })
+  output$Residuals <- renderPlot({
+    if(input$Choose_forecast == "arima") {
+      # ARIMA using train df
+      fit_arima <- train_df %>% 
+        model(ARIMA(Mean))
+      
+      gg_tsresiduals(fit_arima)
+      
+    } else if(input$Choose_forecast == "ets") {
+      # ETS using train df
+      fit_ets <- train_df %>% 
+        model(ETS(Mean))
+      
+      gg_tsresiduals(fit_ets)
+      
+    } else if(input$Choose_forecast == "drift_and_snaive") {
+      # Drift_with_Snaive using train df
+      fit_drift_snaive <- train_df %>% 
+        model(SNAIVE(Mean ~ drift()))
+      
+      gg_tsresiduals(fit_drift_snaive)
+      
+    } else if(input$Choose_forecast == "tslm") {
+      # TSLM using train df
+      fit_tslm <- train_df %>% 
+        model(TSLM(Mean))
+      
+      gg_tsresiduals(fit_tslm)
+    }
+  })
+  
   
   
   output$Plot_3_interpretation <- renderUI({
@@ -448,23 +452,34 @@ server <- function(input, output, session) {
   
   
   output$Forecast_interpretations <- renderUI({
-    if(input$Choose_Plot == "arima") {
+    if(input$Choose_forecast == "arima") {
       tags$ul(
-        tags$li("here interpretation .........."),
-        
+        tags$li("Arima is used to forecast the monthly GISTEMP for the year 2017 and 2018."),
+        tags$li("Arima model is the best model to forecast the GISTEMP time-series."),
+        tags$li("It has the lowest RMSE using Cross Validation."),
+        tags$li("The below residual plot shows that it has white noise, centered at zero, and it misses only few patterns.")
       )
-    } else if(input$Choose_Plot == "ets") {
+    } else if(input$Choose_forecast == "ets") {
       tags$ul(
-        tags$li("here interpretation .........."),
+        tags$li("ETS is used to forecast the monthly GISTEMP for the year 2017 and 2018."),
+        tags$li("ETS model does not perform the best because it didn't capture seasonality"),
+        tags$li("The below residual plot shows that it does not satisfy the requirements of residuals.")
       )
-    } else if(input$Choose_Plot == "drift_and_snaive") {
+    } else if(input$Choose_forecast == "drift_and_snaive") {
       tags$ul(
-        tags$li("here interpretation .........."),
+        tags$li("Drift with Snaive is used to forecast the monthly GISTEMP for the year 2017 and 2018."),
+        tags$li("Drift with Snaive model is the best simple model here because it captures the trend and seasonality well."),
+        tags$li("This model is not realistic, because it is highly unlikely to see similar upward spikes for 2017 and 2018."),
+        tags$li("The below residual plot shows that it does not satisfy the requirements of residuals."),
+        tags$li("There is a significant ACF in residuals.")
       )
     } 
-    else if(input$Choose_Plot == "tslm") {
+    else if(input$Choose_forecast == "tslm") {
       tags$ul(
-        tags$li("here interpretation .........."),
+        tags$li("TSLM is also used to forecast the monthly GISTEMP for the year 2017 and 2018."),
+        tags$li("TSLM model is the second best model to predict the GISTEMP time-series."),
+        tags$li("The below residual plot shows that it does not satisfy the requirements of residuals."),
+        tags$li("There is a significant ACF in residuals.")
       )
     } 
   })
