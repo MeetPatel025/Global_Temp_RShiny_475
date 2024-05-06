@@ -285,7 +285,7 @@ ui <- navbarPage(
   ),
   
   tabPanel("Plots",
-           radioButtons("Choose_Plot", label = h3("Choose Plot:", style = "color: #007BFF; font-size: 24px; font-weight: bold;"),
+           radioButtons("Choose_Plot", label = h3("Choose Plot:", style = "color: white; font-size: 24px; font-weight: bold;"),
                         choices = list("Seasonality Plot" = "Seasonality", 
                                        "Autocorrelation Plot" = "Autocorrelation", 
                                        "Classical Decomposition" = "Decomposition"), 
@@ -463,23 +463,24 @@ server <- function(input, output, session) {
       tags$ul(
         tags$li("ETS is used to forecast the monthly GISTEMP for the year 2017 and 2018."),
         tags$li("ETS model does not perform the best because it didn't capture seasonality"),
-        tags$li("The below residual plot shows that it does not satisfy the requirements of residuals.")
+        tags$li("The below residual plot shows that it does not satisfy the requirements of residuals."),
+        tags$p("- It has significant ACF, roughly centered around 0, and it misses significant patterns of time-series.", style = "margin-left: 25px;")
       )
     } else if(input$Choose_forecast == "drift_and_snaive") {
       tags$ul(
         tags$li("Drift with Snaive is used to forecast the monthly GISTEMP for the year 2017 and 2018."),
-        tags$li("Drift with Snaive model is the best simple model here because it captures the trend and seasonality well."),
+        tags$li("Drift with Snaive model is the best simple model here because it can capture the trend and seasonality well."),
         tags$li("This model is not realistic, because it is highly unlikely to see similar upward spikes for 2017 and 2018."),
         tags$li("The below residual plot shows that it does not satisfy the requirements of residuals."),
-        tags$li("There is a significant ACF in residuals.")
+        tags$p("- It has significant ACF (misses seasonality), not centered at 0, and it misses significant patterns of time-series.", style = "margin-left: 25px;")
       )
     } 
     else if(input$Choose_forecast == "tslm") {
       tags$ul(
-        tags$li("TSLM is also used to forecast the monthly GISTEMP for the year 2017 and 2018."),
+        tags$li("TSLM is used to forecast the monthly GISTEMP for the year 2017 and 2018."),
         tags$li("TSLM model is the second best model to predict the GISTEMP time-series."),
         tags$li("The below residual plot shows that it does not satisfy the requirements of residuals."),
-        tags$li("There is a significant ACF in residuals.")
+        tags$p("- It has significant ACF, centered at 0, and it misses significant patterns of time-series.", style = "margin-left: 25px;")
       )
     } 
   })
